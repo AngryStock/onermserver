@@ -451,7 +451,7 @@ app.get('/get_prev_record', logincheck2, function (req, res) {
   var month = Number(req.query.month);
   var startDate = new Date(year, month - 1);
   var endDate = new Date(year, month);
-  console.log(startDate.valueOf(), endDate.valueOf());
+  // console.log(startDate.valueOf(), endDate.valueOf());
   db.collection('list')
     .find()
     .toArray()
@@ -478,7 +478,7 @@ app.get('/get_next_record', logincheck2, function (req, res) {
   var month = Number(req.query.month);
   var startDate = new Date(year, month - 1);
   var endDate = new Date(year, month);
-  console.log(startDate.toString(), endDate.toString());
+  // console.log(startDate.toString(), endDate.toString());
   db.collection('list')
     .find()
     .toArray()
@@ -487,6 +487,35 @@ app.get('/get_next_record', logincheck2, function (req, res) {
         await db
           .collection('user' + req.user._id.toString())
           .find({ name: result1[i]._id.toString(), date: { $gte: startDate.valueOf(), $lt: endDate.valueOf() } })
+          .toArray()
+          .then((result2) => {
+            if (result2[0]) {
+              record.push(...result2);
+            }
+          });
+      }
+      res.send(record);
+    });
+});
+
+app.get('/set_calendar', logincheck2, function (req, res) {
+  var record = [];
+  var today = new Date();
+  var searchDate = '';
+  if (today.getMonth < 2) {
+    searchDate = new Date(today.getFullYear() - 1, today.getMonth() - 1 + 12);
+  } else {
+    searchDate = new Date(today.getFullYear(), today.getMonth() - 1);
+  }
+
+  db.collection('list')
+    .find()
+    .toArray()
+    .then(async (result1) => {
+      for (let i = 0; i < result1.length; i++) {
+        await db
+          .collection('user' + req.user._id.toString())
+          .find({ name: result1[i]._id.toString(), date: { $gte: searchDate.valueOf() } })
           .toArray()
           .then((result2) => {
             if (result2[0]) {
@@ -529,13 +558,6 @@ app.get('/setdata', logincheck2, function (req, res) {
                 .find({ id: result2[a]._id })
                 .toArray()
                 .then(async (result3) => {
-                  var today = new Date();
-                  var searchDate = '';
-                  if (today.getMonth < 2) {
-                    searchDate = new Date(today.getFullYear() - 1, today.getMonth() - 1 + 12);
-                  } else {
-                    searchDate = new Date(today.getFullYear(), today.getMonth() - 1);
-                  }
                   mylist.push(...result3);
                   for (let b = 0; b < result3.length; b++) {
                     await db
@@ -583,13 +605,6 @@ app.get('/setdata', logincheck2, function (req, res) {
                             });
                         }
                       });
-                    await db
-                      .collection('user' + req.user._id.toString())
-                      .find({ name: result3[b].list_id.toString(), date: { $gte: searchDate.valueOf() } })
-                      .toArray()
-                      .then((result4) => {
-                        calendar.push(...result4);
-                      });
                   }
                 });
             }
@@ -624,7 +639,6 @@ app.get('/setdata', logincheck2, function (req, res) {
           memo: memo,
         },
         profile: { profile: req.user },
-        calendar: { record: calendar },
       });
     });
 });
