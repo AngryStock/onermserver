@@ -444,6 +444,60 @@ app.delete('/del_mylist', logincheck2, function (req, res) {
     });
 });
 
+app.get('/get_prev_record', logincheck2, function (req, res) {
+  console.log(req.query);
+  var record = [];
+  var year = Number(req.query.year);
+  var month = Number(req.query.month);
+  var startDate = new Date(year, month - 1);
+  var endDate = new Date(year, month);
+  console.log(startDate.valueOf(), endDate.valueOf());
+  db.collection('list')
+    .find()
+    .toArray()
+    .then(async (result1) => {
+      for (let i = 0; i < result1.length; i++) {
+        await db
+          .collection('user' + req.user._id.toString())
+          .find({ name: result1[i]._id.toString(), date: { $gte: startDate.valueOf(), $lt: endDate.valueOf() } })
+          .toArray()
+          .then((result2) => {
+            if (result2[0]) {
+              record.push(...result2);
+            }
+          });
+      }
+      res.send(record);
+    });
+});
+
+app.get('/get_next_record', logincheck2, function (req, res) {
+  console.log(req.query);
+  var record = [];
+  var year = Number(req.query.year);
+  var month = Number(req.query.month);
+  var startDate = new Date(year, month - 1);
+  var endDate = new Date(year, month);
+  console.log(startDate.toString(), endDate.toString());
+  db.collection('list')
+    .find()
+    .toArray()
+    .then(async (result1) => {
+      for (let i = 0; i < result1.length; i++) {
+        await db
+          .collection('user' + req.user._id.toString())
+          .find({ name: result1[i]._id.toString(), date: { $gte: startDate.valueOf(), $lt: endDate.valueOf() } })
+          .toArray()
+          .then((result2) => {
+            if (result2[0]) {
+              record.push(...result2);
+            }
+          });
+      }
+      res.send(record);
+    });
+});
+
 app.get('/setdata', logincheck2, function (req, res) {
   var division = [];
   var list = [];
@@ -477,10 +531,10 @@ app.get('/setdata', logincheck2, function (req, res) {
                 .then(async (result3) => {
                   var today = new Date();
                   var searchDate = '';
-                  if (today.getMonth < 3) {
-                    searchDate = new Date(today.getFullYear() - 1, today.getMonth() - 2 + 12);
+                  if (today.getMonth < 2) {
+                    searchDate = new Date(today.getFullYear() - 1, today.getMonth() - 1 + 12);
                   } else {
-                    searchDate = new Date(today.getFullYear(), today.getMonth() - 2);
+                    searchDate = new Date(today.getFullYear(), today.getMonth() - 1);
                   }
                   mylist.push(...result3);
                   for (let b = 0; b < result3.length; b++) {
