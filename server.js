@@ -275,8 +275,8 @@ app.post('/add_division', logincheck2, function (req, res) {
 });
 
 app.post('/add_mylist', logincheck2, async function (req, res) {
+  var mylist = [];
   var exrecord = [];
-  var record = [];
   var memo = [];
   var basic_record = [
     { kg: '', rep: '', break_time: 60, performance_time: '', check: true },
@@ -297,6 +297,7 @@ app.post('/add_mylist', logincheck2, async function (req, res) {
           .collection('user' + req.user._id.toString())
           .findOne({ _id: result1.insertedId })
           .then(async (result2) => {
+            mylist.push(result2);
             await db
               .collection('user' + req.user._id.toString())
               .find({ name: result2.list_id.toString() })
@@ -306,12 +307,6 @@ app.post('/add_mylist', logincheck2, async function (req, res) {
                 if (result3[0]) {
                   return;
                 } else {
-                  record.push({
-                    name: result2.list_id.toString(),
-                    record: basic_record,
-                    title: req.body.select[i].title,
-                    date: new Date().valueOf(),
-                  });
                   exrecord.push({
                     name: result2.list_id.toString(),
                     record: basic_record,
@@ -324,6 +319,7 @@ app.post('/add_mylist', logincheck2, async function (req, res) {
               .collection('user' + req.user._id.toString())
               .findOne({ memo: result2.list_id.toString() })
               .then(async (result3) => {
+                console.log(result3);
                 if (result3) {
                   return;
                 } else {
@@ -337,6 +333,7 @@ app.post('/add_mylist', logincheck2, async function (req, res) {
                       ],
                     })
                     .then((result4) => {
+                      console.log(result4);
                       memo.push({
                         _id: result4.insertedId,
                         memo: result2.list_id.toString(),
@@ -351,13 +348,15 @@ app.post('/add_mylist', logincheck2, async function (req, res) {
           });
       });
   }
-  await db
-    .collection('user' + req.user._id.toString())
-    .find({ id: new ObjId(req.body.id) })
-    .toArray()
-    .then(async (result) => {
-      res.send({ mylist: result, record: record, exrecord: exrecord, memo: memo });
-    });
+  const record = JSON.parse(JSON.stringify(exrecord));
+
+  for (var i = 0; i < record.length; i++) {
+    for (var a = 0; a < record[i].record.length; a++) {
+      record[i].record[a].check = false;
+      record[i].record[a].performance_time = '';
+    }
+  }
+  res.send({ mylist: mylist, record: record, exrecord: exrecord, memo: memo });
 });
 
 app.post('/add_record', logincheck2, async function (req, res) {
