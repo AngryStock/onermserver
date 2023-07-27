@@ -642,6 +642,213 @@ app.get('/setdata', logincheck2, function (req, res) {
     });
 });
 
+app.post('/manager', function (req, res) {
+  console.log(req.body);
+  const 초성 = [
+    'ㄱ',
+    'ㄲ',
+    'ㄴ',
+    'ㄷ',
+    'ㄸ',
+    'ㄹ',
+    'ㅁ',
+    'ㅂ',
+    'ㅃ',
+    'ㅅ',
+    'ㅆ',
+    'ㅇ',
+    'ㅈ',
+    'ㅉ',
+    'ㅊ',
+    'ㅋ',
+    'ㅌ',
+    'ㅍ',
+    'ㅎ',
+  ];
+
+  const 중성 = [
+    'ㅏ',
+    'ㅐ',
+    'ㅑ',
+    'ㅒ',
+    'ㅓ',
+    'ㅔ',
+    'ㅕ',
+    'ㅖ',
+    'ㅗ',
+    'ㅘ',
+    'ㅙ',
+    'ㅚ',
+    'ㅛ',
+    'ㅜ',
+    'ㅝ',
+    'ㅞ',
+    'ㅟ',
+    'ㅠ',
+    'ㅡ',
+    'ㅢ',
+    'ㅣ',
+  ];
+
+  const 종성 = [
+    ' ',
+    'ㄱ',
+    'ㄲ',
+    'ㄳ',
+    'ㄴ',
+    'ㄵ',
+    'ㄶ',
+    'ㄷ',
+    'ㄹ',
+    'ㄺ',
+    'ㄻ',
+    'ㄼ',
+    'ㄽ',
+    'ㄾ',
+    'ㄿ',
+    'ㅀ',
+    'ㅁ',
+    'ㅂ',
+    'ㅄ',
+    'ㅅ',
+    'ㅆ',
+    'ㅇ',
+    'ㅈ',
+    'ㅊ',
+    'ㅋ',
+    'ㅌ',
+    'ㅍ',
+    'ㅎ',
+  ];
+
+  const 초성_연결자 = [
+    'ㄱ',
+    'ㄲ',
+    'ㄴ',
+    'ㄷ',
+    'ㄸ',
+    'ㄹ',
+    'ㅁ',
+    'ㅂ',
+    'ㅃ',
+    'ㅅ',
+    'ㅆ',
+    'ㅇ',
+    'ㅈ',
+    'ㅉ',
+    'ㅊ',
+    'ㅋ',
+    'ㅌ',
+    'ㅍ',
+    'ㅎ',
+  ].reduce(
+    (acc, cur, idx) => ({
+      ...acc,
+      [cur]: idx,
+    }),
+    {}
+  );
+
+  const 종성_연결자 = [
+    ' ',
+    'ㄱ',
+    'ㄲ',
+    'ㄳ',
+    'ㄴ',
+    'ㄵ',
+    'ㄶ',
+    'ㄷ',
+    'ㄹ',
+    'ㄺ',
+    'ㄻ',
+    'ㄼ',
+    'ㄽ',
+    'ㄾ',
+    'ㄿ',
+    'ㅀ',
+    'ㅁ',
+    'ㅂ',
+    'ㅄ',
+    'ㅅ',
+    'ㅆ',
+    'ㅇ',
+    'ㅈ',
+    'ㅊ',
+    'ㅋ',
+    'ㅌ',
+    'ㅍ',
+    'ㅎ',
+  ].reduce(
+    (acc, cur, idx) => ({
+      ...acc,
+      [cur]: idx,
+    }),
+    {}
+  );
+
+  var data = req.body.title.replace(/ /gi, '');
+  var 초성들 = [];
+  var 중성들 = [];
+  var 종성들 = [];
+  for (var i = 0; i < data.length; i++) {
+    초성들.push(...초성[parseInt((data.charCodeAt(i) - 44032) / 588)]);
+    중성들.push(
+      ...중성[parseInt((data.charCodeAt(i) - 44032 - parseInt((data.charCodeAt(i) - 44032) / 588) * 588) / 28)]
+    );
+    종성들.push(...종성[parseInt((data.charCodeAt(i) - 44032) % 28)]);
+  }
+
+  var data2 = [];
+  for (var i = 0; i < 초성들.length; i++) {
+    if (i == 0) {
+      for (var a = 0; a < 2; a++) {
+        var merger_keyword = [];
+        if (a == 0) {
+          merger_keyword.push(초성들[i]);
+        } else {
+          merger_keyword.push(
+            ...String.fromCharCode(44032 + 초성_연결자[초성들[i]] * 588 + (중성들[i].charCodeAt(0) - 12623) * 28)
+          );
+        }
+        data2.push(merger_keyword.join(''));
+      }
+    } else {
+      for (var a = 0; a < 2; a++) {
+        var merger_keyword = [];
+        for (var b = 0; b < i; b++) {
+          merger_keyword.push(
+            ...String.fromCharCode(
+              44032 + 초성_연결자[초성들[b]] * 588 + (중성들[b].charCodeAt(0) - 12623) * 28 + 종성_연결자[종성들[b]]
+            )
+          );
+        }
+        if (a == 0) {
+          merger_keyword.push(초성들[i]);
+        } else {
+          merger_keyword.push(
+            ...String.fromCharCode(44032 + 초성_연결자[초성들[i]] * 588 + (중성들[i].charCodeAt(0) - 12623) * 28)
+          );
+        }
+        data2.push(merger_keyword.join(''));
+      }
+    }
+  }
+  var data3 = [];
+  data3.push(초성들.join(''), data2.join(''), data);
+  var 키워드 = data3.join('');
+  var 저장할거 = {
+    title: req.body.title,
+    division: req.body.division,
+    equipment: req.body.equipment,
+    keyword: 키워드,
+  };
+  db.collection('list')
+    .insertOne(저장할거)
+    .then((result) => {
+      res.send(result);
+    });
+});
+
 app.get('/auth/login', logincheck1, function (req, res) {
   res.sendFile(path.join(__dirname, 'public/index.html'));
 });
@@ -673,6 +880,10 @@ app.get('/privacypolicy', function (req, res) {
 });
 app.get('/tos', function (req, res) {
   res.sendFile(path.join(__dirname, 'public/tosnpp/tos.html'));
+});
+
+app.get('/manager', managercheck, function (req, res) {
+  res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 app.get('/', function (req, res) {
