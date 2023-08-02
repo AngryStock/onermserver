@@ -842,6 +842,7 @@ app.post('/manager', function (req, res) {
     equipment: req.body.equipment,
     keyword: 키워드,
   };
+  console.log(저장할거);
   db.collection('list')
     .insertOne(저장할거)
     .then((result) => {
